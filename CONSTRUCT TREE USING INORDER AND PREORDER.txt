@@ -1,0 +1,107 @@
+from sys import stdin, setrecursionlimit
+import queue
+
+setrecursionlimit(10 ** 6)
+
+
+#Following is the structure used to represent the Binary Tree Node
+class BinaryTreeNode:
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
+
+s = set()
+st = []
+
+def buildTree(preOrder, inOrder, n) :
+	#Your code goes here
+    root = None
+    pre = 0
+    temp = 0
+    while pre < n:
+        node = None
+        while True:
+            node = BinaryTreeNode(preOrder[pre])
+            
+            if (root == None):
+                root = node
+                
+            if (len(st) > 0):
+                if (st[-1] in s):
+                    s.discard(st[-1])
+                    st[-1].right = node
+                    st.pop()
+                    
+                else:
+                    st[-1].left = node
+            st.append(node)
+            
+            if pre>=n or preOrder[pre] == inOrder[temp]:
+                pre += 1
+                break
+            pre += 1
+            
+        node = None
+        
+        while(len(st) > 0 and temp < n and st[-1].data == inOrder[temp]):
+            node = st[-1]
+            st.pop()
+            temp += 1
+            
+        if (node != None):
+            s.add(node)
+            st.append(node)
+            
+    return root
+
+
+'''-------------------------- Utility Functions --------------------------'''
+
+def printLevelWise(root):
+    if root is None :
+        return
+
+    pendingNodes = queue.Queue()
+    pendingNodes.put(root)
+    pendingNodes.put(None)
+
+    while not pendingNodes.empty(): 
+        frontNode = pendingNodes.get()
+    
+        if frontNode is None :
+            print()
+            
+            if not pendingNodes.empty() :
+                pendingNodes.put(None)
+                
+        else :
+            print(frontNode.data, end = " ")
+            
+            if frontNode.left is not None :
+                pendingNodes.put(frontNode.left)
+                
+                
+            if frontNode.right is not None :
+                pendingNodes.put(frontNode.right)
+
+
+                
+
+#Taking level-order input using fast I/O method
+def takeInput():
+    n = int(stdin.readline().strip())
+
+    if n == 0 :
+        return list(), list(), 0
+
+    preOrder = list(map(int, stdin.readline().strip().split(" ")))
+    inOrder = list(map(int, stdin.readline().strip().split(" ")))
+
+    return preOrder, inOrder, n
+
+
+# Main
+preOrder, inOrder, n = takeInput()
+root = buildTree(preOrder, inOrder, n)
+printLevelWise(root)
